@@ -3,7 +3,7 @@ version: '3.7'
 services:
   nginx-proxy:
     image: jwilder/nginx-proxy
-    container_name: nginx-proxy
+    container_name: nginx-proxy-registry
     ports:
       - "80:80"
       - "443:443"
@@ -19,7 +19,7 @@ services:
 
   letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: letsencrypt
+    container_name: letsencrypt-registry
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     volumes_from:

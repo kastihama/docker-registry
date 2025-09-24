@@ -25,9 +25,9 @@
    htpasswd -cB ./auth/htpasswd **your-username**
    ```
    
-2. Clone the repo
+2. create network
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   docker network create registry
    ```
 4. Install NPM packages
    ```sh

@@ -1,0 +1,51 @@
+version: '3.7'
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/nginx/certs
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./server.conf:/etc/nginx/conf.d/server.conf
+    restart: always
+    networks:
+      - registry
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: letsencrypt
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - nginx-proxy
+    restart: always
+    networks:
+      - registry
+
+  registry:
+    image: registry:2
+    container_name: registry
+    environment:
+      - VIRTUAL_HOST=${REGISTRY_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${REGISTRY_LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${REGISTRY_LETSENCRYPT_EMAIL}
+      - REGISTRY_AUTH=${REGISTRY_AUTH}
+      - REGISTRY_AUTH_HTPASSWD_REALM=${REGISTRY_AUTH_HTPASSWD_REALM}
+      - REGISTRY_AUTH_HTPASSWD_PATH=${REGISTRY_AUTH_HTPASSWD_PATH}
+      - REGISTRY_HTTP_SECRET=${REGISTRY_HTTP_SECRET}
+    volumes:
+      - ./auth:/auth
+      - ./data:/var/lib/registry
+    restart: always
+    networks:
+      - registry
+
+networks:
+  registry:
+    external: true
